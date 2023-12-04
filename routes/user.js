@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 
 const{login,signup}=require("../controllers/Auth");
-const{auth,isStudent,isAdmin}=require("../middlewares/auth")
-
+const{auth,isStudent,isAdmin}=require("../middlewares/auth");
+const{localFileUpload, imageUpload}=require("../controllers/fileUpload")
+//imageUpload,videoUpload,imageReducerUpload,
 // router.post("/login",login);
 router.post("/signup",signup);
 router.post("/login",login);
@@ -25,5 +26,7 @@ router.get("/admin",auth,isAdmin,(req,res)=>{
         Message:'welcome to the protected route for admin',
     });
 });
-
+//route to upload loacal file
+router.post("/localFileUpload",auth,localFileUpload);
+router.post("/imageUpload",imageUpload);
 module.exports=router;
