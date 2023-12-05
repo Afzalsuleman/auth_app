@@ -3,7 +3,7 @@ const router = express.Router();
 
 const{login,signup}=require("../controllers/Auth");
 const{auth,isStudent,isAdmin}=require("../middlewares/auth");
-const{localFileUpload, imageUpload}=require("../controllers/fileUpload")
+const{localFileUpload,imageUpload,videoUpload}=require("../controllers/fileUpload")
 //imageUpload,videoUpload,imageReducerUpload,
 // router.post("/login",login);
 router.post("/signup",signup);
@@ -29,4 +29,5 @@ router.get("/admin",auth,isAdmin,(req,res)=>{
 //route to upload loacal file
 router.post("/localFileUpload",auth,localFileUpload);
 router.post("/imageUpload",imageUpload);
+router.post("/videoUpload",videoUpload);
 module.exports=router;
