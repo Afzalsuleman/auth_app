@@ -26,8 +26,11 @@ exports.localFileUpload=async(req,res)=>{
 function isFileTypeSupported(type,supportedTypes){
     return supportedTypes.includes(type);
 }
-async function uploadFileToCloudinary(file,folder){
+async function uploadFileToCloudinary(file,folder,quality){
     const options={folder};
+    if (quality) {
+        options.quality = quality;
+    }
     options.resource_type = "auto"
     return await cloudinary.uploader.upload(file.tempFilePath,options);
 }
@@ -56,6 +59,7 @@ exports.imageUpload=async(req,res)=>{
             tags,
             email,
             url:response.secure_url,
+            type:response.resource_type,
         });
         res.json({
             sucess:true,
@@ -71,47 +75,6 @@ exports.imageUpload=async(req,res)=>{
         })
     }
 }
-//video upload
-// exports.videoUpload=async(req,res)=>{
-//     try {
-//         const{name,tags,email}=req.body;
-//         const file=req.files.videoFile;
-//          //validation 
-//          const supportedTypes=["mp4","mov"];
-//          const fileType=file.name.split('.')[1].toLowerCase();
- 
-//          if(!isFileTypeSupported(fileType,supportedTypes)){
-//              return res.status(400).json({
-//                  sucess:false,
-//                  message:'File format not supported',
-//              })
-//          }
-//          //file supported hia toh
-//         const response=await uploadFileToCloudinary(file,"zaynatic");
-//         //save in db
-//         console.log(response);
-//         const fileData=await FileModel.create({
-//             name,
-//             tags,
-//             email,
-//             url:"response.secure_url",
-//         });
-//         res.json({
-//             sucess:true,
-//             imageUrl:response.secure_url,
-//             message:'video sucessfully upload to cloudinary'
-//         })
-
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({
-//             sucess: false,
-//             message: 'something went wrong'
-//         })
-        
-//     }
-// }
-
 // Video Uploader Handler 
 exports.videoUpload = async (req, res) => {
     try {
@@ -137,7 +100,7 @@ exports.videoUpload = async (req, res) => {
         // File Upload to the Cloudinary 
         const response = await uploadFileToCloudinary(videoFile, "zaynatic");
 
-        console.log(response.secure_url)
+        console.log(response)
 
         // Upload To DB
         //save in db
@@ -146,6 +109,7 @@ exports.videoUpload = async (req, res) => {
             tags,
             email,
             url:response.secure_url,
+            type:response.resource_type,
         });
 
         //console.log("file",file);
@@ -159,6 +123,59 @@ exports.videoUpload = async (req, res) => {
     }
     catch (err) {
         console.error(err)
+        res.status(400).json({
+            success: false,
+            message: "Something went wrong"
+        })
+    }
+}
+//compress file size upload
+exports.imageReducer = async (req, res) => {
+    try {
+
+        const { name, tags, email } = req.body;
+        console.log(name, tags, email);
+
+        // Fetch file 
+        const imageFile = req.files.imageFile;
+        console.log(imageFile);
+
+        const supportedTypes = ["png", "jpg", "jpeg"];
+        const fileType = imageFile.name.split('.')[1].toLowerCase();
+
+        // Check file type is supported or not 
+        if (!isFileTypeSupported(fileType, supportedTypes)) {
+            return res.status(400).json({
+                success: false,
+                message: "File type not supported"
+            })
+        }
+
+        // Upload to Cloudinary
+        // HW - Decrease size by height and width 
+        const response = await uploadFileToCloudinary(imageFile, "zaynatic", 50);
+        console.log(response)
+
+
+        // Upload to DB 
+        const fileData = await FileModel.create({
+            name,
+            tags,
+            email,
+            url: response.secure_url,
+            type:response.resource_type,
+        })
+
+
+        res.status(200).json({
+            success: true,
+            message: "File uploaded successfully",
+            file: fileData
+        })
+
+    }
+    catch (error) {
+        console.log(error)
         res.status(400).json({
             success: false,
             message: "Something went wrong"

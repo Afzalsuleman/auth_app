@@ -14,6 +14,9 @@ const fileSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+    },
+    type: {
+        type: String,
     }
 });
 
