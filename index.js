@@ -1,7 +1,9 @@
+
 //app create
 const express = require("express");
 const app = express();
-
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger-output.json');
 require('dotenv').config();
 const PORT = process.env.PORT || 4000;
 //cookie parser 
@@ -20,8 +22,8 @@ require("./config/database").connect();
 require("./config/cloudinary").cloudinaryConnect();
 //route import and mount
 const user = require("./routes/user");
-app.use("/api/v1", user);
-
+app.use( user);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 //activate
 
 app.listen(PORT, () => {

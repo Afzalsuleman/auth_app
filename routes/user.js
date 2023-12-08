@@ -28,7 +28,7 @@ router.get("/admin",auth,isAdmin,(req,res)=>{
 });
 //route to upload loacal file
 router.post("/localFileUpload",auth,localFileUpload);
-router.post("/imageUpload",imageUpload);
+router.post("/imageUpload",auth,isStudent,imageUpload);
 router.post("/videoUpload",videoUpload);
 router.post("/imageReducer", imageReducer);
 module.exports=router;
